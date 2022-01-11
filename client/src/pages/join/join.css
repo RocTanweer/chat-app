@@ -1,0 +1,11 @@
+input[type="text"] {
+  font-size: 18px;
+  padding: 10px 5px;
+  margin-right: 10px;
+}
+
+button[type="submit"] {
+  padding: 10px 25px;
+  cursor: pointer;
+  font-size: 19px;
+}
