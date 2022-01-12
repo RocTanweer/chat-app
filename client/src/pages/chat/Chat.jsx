@@ -1,14 +1,31 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
+
+import Message from "../../component/message/Message";
 
 import "./chat.css";
 
 let socket;
 
-function Chat({ userName, roomName }) {
-  const [notification, setNotification] = useState(null);
+function Chat({ userName }) {
+  const [roomName, setRoomName] = useState("Public Chat");
   const [users, setUsers] = useState([]);
-  const [messages, Setmessages] = useState([]);
+  const [messages, setMessages] = useState([]);
+
+  const chatBox = useRef();
+
+  useEffect(() => {
+    const handleScrolling = (event) => {
+      const { currentTarget: target } = event;
+      target.scroll({ top: target.scrollHeight, behavior: "smooth" });
+    };
+    if (chatBox) {
+      chatBox.current.addEventListener("DOMNodeInserted", handleScrolling);
+    }
+    return () => {
+      chatBox.current.removeEventListener("DOMNodeInserted", handleScrolling);
+    };
+  }, []);
 
   useEffect(() => {
     socket = io("http://localhost:4000");
@@ -16,21 +33,29 @@ function Chat({ userName, roomName }) {
     socket.emit("join-public", userName, roomName);
 
     socket.on("notification", ({ message }) => {
-      setNotification(message);
+      setMessages((prev) => [...prev, { type: "notification", body: message }]);
     });
 
     socket.on("users", ({ users }) => {
       setUsers(users);
     });
 
-    socket.on("message", (message) => {
-      Setmessages((prev) => [...prev, message]);
+    socket.on("receivemessage", ({ message, userName }) => {
+      setMessages((prev) => [...prev, { type: "receive", body: message, user: userName }]);
     });
   }, []);
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    socket.emit("sendmessage", { message: e.target.message.value, roomName });
+    const message = e.target.message.value;
+    setMessages((prev) => [...prev, { type: "send", body: message, user: userName }]);
+    socket.emit("sendmessage", { message, roomName, userName });
+    e.target.message.value = "";
+  };
+
+  const handleRoomButton = (e, room) => {
+    if (roomName !== room) setRoomName(room);
+    socket.emit("join-room", { roomName, userName });
   };
 
   return (
@@ -40,27 +65,38 @@ function Chat({ userName, roomName }) {
           <h2>Rooms</h2>
 
           <ul>
-            {users
-              .find((user) => user.userName === userName)
-              ?.rooms.map((room, index) => {
-                return <li key={index}>{room}</li>;
-              })}
+            {users.length !== 0 &&
+              users
+                .find((user) => user.userName === userName)
+                ?.rooms.map((room, index) => {
+                  return (
+                    <button onClick={(e) => handleRoomButton(e, room)} key={index}>
+                      {room}
+                    </button>
+                  );
+                })}
           </ul>
         </div>
         <div className="chat__aside--users">
           <h2>Active Users</h2>
-          {users
-            .filter((user) => user.userName !== userName)
-            .map((user, index) => {
-              return <li key={index}>{user.userName}</li>;
-            })}
+          {users.length !== 0 &&
+            users
+              .filter((user) => user.userName !== userName)
+              .map((user, index) => {
+                const { userName, userId } = user;
+                return (
+                  <button onClick={(e) => handleRoomButton(e, userId)} key={index}>
+                    {userName}
+                  </button>
+                );
+              })}
         </div>
       </div>
       <div className="chat__room">
-        <div className="chat__room--messages">
-          <span>{notification}</span>
+        <div ref={chatBox} className="chat__room--messages">
           {messages.map((message, index) => {
-            return <li key={index}>{message}</li>;
+            const { type, body, user } = message;
+            return <Message key={index} user={user} type={type} body={body} />;
           })}
         </div>
         <div className="chat__room--form">

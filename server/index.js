@@ -15,14 +15,20 @@ io.on("connection", (socket) => {
   console.log("user is connected");
 
   socket.on("join-public", (userName, roomName) => {
+    // roomName ===  public
     addUser(userName, socket.id, roomName);
     socket.join(roomName);
-    socket.to(roomName).emit("notification", { message: `user: ${userName} has joined the conversation` });
+    socket.to(roomName).emit("notification", { message: `user: ${userName} has joined ${roomName}` });
     io.to(roomName).emit("users", { users });
   });
 
-  socket.on("sendmessage", ({ message, roomName }) => {
-    io.to(roomName).emit("message", message);
+  socket.on("sendmessage", ({ message, roomName, userName }) => {
+    socket.to(roomName).emit("receivemessage", { message, userName });
+  });
+
+  socket.on("join-room", (roomName, userName) => {
+    socket.join(roomName);
+    socket.to(roomName).emit("notification", { message: `${userName} has joined ${roomName}` });
   });
 });
 
