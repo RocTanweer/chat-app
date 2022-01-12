@@ -5,7 +5,6 @@ import Chat from "../pages/chat/Chat";
 
 function App() {
   const [userName, setUserName] = useState(null);
-  const [roomName, setRoomName] = useState("Public Chat");
 
   console.log("app");
 
@@ -15,7 +14,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Navigate replace to={"/join"} />} />
           <Route path="/join" element={<Join setUserName={setUserName} />} />
-          <Route path="/chat" element={<Chat userName={userName} roomName={roomName} />} />
+          <Route path="/chat" element={<Chat userName={userName} />} />
         </Routes>
       </BrowserRouter>
     </main>

@@ -1,0 +1,42 @@
+.message-container {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.notification {
+  justify-content: center;
+}
+
+.send {
+  justify-content: flex-end;
+}
+
+.receive {
+  justify-content: flex-start;
+}
+
+.message {
+  background-color: rgb(204, 204, 204);
+  padding: 10px 20px;
+  border-radius: 20px;
+}
+
+.message--body {
+  font-size: 18px;
+  color: black;
+}
+
+.user-name {
+  font-size: 13px;
+  color: rgb(41, 41, 41);
+}
+
+.notification .message--body {
+  font-size: 13px;
+  color: white;
+}
+
+.notification .message {
+  background-color: black;
+}
