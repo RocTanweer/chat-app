@@ -14,21 +14,21 @@ const io = new Server(httpServer, {
 io.on("connection", (socket) => {
   console.log("user is connected");
 
-  socket.on("join-public", (userName, roomName) => {
+  socket.on("join-public", (userName, room) => {
     // roomName ===  public
-    addUser(userName, socket.id, roomName);
-    socket.join(roomName);
-    socket.to(roomName).emit("notification", { message: `user: ${userName} has joined ${roomName}` });
-    io.to(roomName).emit("users", { users });
+    addUser(userName, socket.id, room);
+    socket.join(room.id);
+    socket.to(room.id).emit("notification", { message: `user: ${userName} has joined` });
+    io.to(room.id).emit("users", { users });
   });
 
   socket.on("sendmessage", ({ message, roomName, userName }) => {
     socket.to(roomName).emit("receivemessage", { message, userName });
   });
 
-  socket.on("join-room", (roomName, userName) => {
-    socket.join(roomName);
-    socket.to(roomName).emit("notification", { message: `${userName} has joined ${roomName}` });
+  socket.on("join-room", (roomId, userName) => {
+    socket.join(roomId);
+    socket.to(roomId).emit("notification", { message: `${userName} has joined` });
   });
 });
 

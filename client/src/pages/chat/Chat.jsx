@@ -8,7 +8,7 @@ import "./chat.css";
 let socket;
 
 function Chat({ userName }) {
-  const [roomName, setRoomName] = useState("Public Chat");
+  const [room, setRoom] = useState({ name: "Public Chat", id: "123" });
   const [users, setUsers] = useState([]);
   const [messages, setMessages] = useState([]);
 
@@ -30,7 +30,7 @@ function Chat({ userName }) {
   useEffect(() => {
     socket = io("http://localhost:4000");
 
-    socket.emit("join-public", userName, roomName);
+    socket.emit("join-public", userName, room);
 
     socket.on("notification", ({ message }) => {
       setMessages((prev) => [...prev, { type: "notification", body: message }]);
@@ -49,13 +49,13 @@ function Chat({ userName }) {
     e.preventDefault();
     const message = e.target.message.value;
     setMessages((prev) => [...prev, { type: "send", body: message, user: userName }]);
-    socket.emit("sendmessage", { message, roomName, userName });
+    socket.emit("sendmessage", { message, roomName: room.id, userName });
     e.target.message.value = "";
   };
 
-  const handleRoomButton = (e, room) => {
-    if (roomName !== room) setRoomName(room);
-    socket.emit("join-room", { roomName, userName });
+  const handleRoomButton = (e, name, id) => {
+    if (room.id !== id) setRoom({ name, id });
+    socket.emit("join-room", { roomId: id, userName });
   };
 
   return (
@@ -69,9 +69,10 @@ function Chat({ userName }) {
               users
                 .find((user) => user.userName === userName)
                 ?.rooms.map((room, index) => {
+                  const { name, id } = room;
                   return (
                     <li key={index}>
-                      <button onClick={(e) => handleRoomButton(e, room)}>{room}</button>
+                      <button onClick={(e) => handleRoomButton(e, name, id)}>{name}</button>
                     </li>
                   );
                 })}
@@ -84,10 +85,10 @@ function Chat({ userName }) {
               users
                 .filter((user) => user.userName !== userName)
                 .map((user, index) => {
-                  const { userName, userId } = user;
+                  const { userName: name, userId: id } = user;
                   return (
                     <li key={index}>
-                      <button onClick={(e) => handleRoomButton(e, userId)}>{userName}</button>
+                      <button onClick={(e) => handleRoomButton(e, name, id)}>{name}</button>
                     </li>
                   );
                 })}
@@ -96,7 +97,7 @@ function Chat({ userName }) {
       </div>
       <div className="chat__room">
         <div className="chat__room--name">
-          <p className="roomName">{roomName}</p>
+          <p className="roomName">{room.name}</p>
         </div>
         <div ref={chatBox} className="chat__room--messages">
           {messages.map((message, index) => {

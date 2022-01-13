@@ -1,10 +1,10 @@
 let users = [];
 
-const addUser = (userName, userId, roomName) => {
+const addUser = (userName, userId, room) => {
   const userInfo = {
     userName,
     userId,
-    rooms: [roomName],
+    rooms: [{ name: room.name, id: room.id }],
   };
   users.push(userInfo);
 };
