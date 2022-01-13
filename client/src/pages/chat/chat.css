@@ -15,14 +15,36 @@
   grid-template-rows: 50% 50%;
 }
 
+.list {
+  list-style: none;
+  width: 100%;
+  height: auto;
+  overflow-y: scroll;
+}
+
+.list li {
+  width: 100%;
+  height: auto;
+  display: grid;
+  grid-template-columns: 100%;
+  grid-template-rows: 100%;
+}
+
+.list button {
+  grid-column: 1 / 2;
+  grid-row: 1 / 2;
+  cursor: pointer;
+  padding: 10px 0;
+}
+
 h2 {
   text-align: center;
+  margin-bottom: 15px;
 }
 
 .chat__aside--rooms {
   grid-column: 1 / 2;
   grid-row: 1 / 2;
-  overflow-y: scroll;
   border-bottom: 1px solid black;
   border-right: 1px solid black;
 }
@@ -30,7 +52,6 @@ h2 {
 .chat__aside--users {
   grid-column: 1 / 2;
   grid-row: 2 / 3;
-  overflow-y: scroll;
   border-right: 1px solid black;
 }
 
@@ -39,19 +60,34 @@ h2 {
   grid-row: 1 / 2;
   display: grid;
   grid-template-columns: 100%;
-  grid-template-rows: 90% 10%;
+  grid-template-rows: 10% 80% 10%;
+}
+
+.chat__room--name {
+  grid-column: 1 / 2;
+  grid-row: 1 / 2;
+}
+
+.chat__room--name {
+  padding: 0 20px;
+}
+
+.roomName {
+  font-size: 32px;
+  font-weight: bold;
+  text-align: right;
 }
 
 .chat__room--messages {
   grid-column: 1 / 2;
-  grid-row: 1 / 2;
+  grid-row: 2 / 3;
   border-bottom: 1px solid black;
   overflow-y: scroll;
 }
 
 .chat__room--form {
   grid-column: 1 / 2;
-  grid-row: 2 / 3;
+  grid-row: 3 / 4;
 }
 
 .chat__room--form form {

@@ -64,35 +64,40 @@ function Chat({ userName }) {
         <div className="chat__aside--rooms">
           <h2>Rooms</h2>
 
-          <ul>
+          <ul className="list">
             {users.length !== 0 &&
               users
                 .find((user) => user.userName === userName)
                 ?.rooms.map((room, index) => {
                   return (
-                    <button onClick={(e) => handleRoomButton(e, room)} key={index}>
-                      {room}
-                    </button>
+                    <li key={index}>
+                      <button onClick={(e) => handleRoomButton(e, room)}>{room}</button>
+                    </li>
                   );
                 })}
           </ul>
         </div>
         <div className="chat__aside--users">
           <h2>Active Users</h2>
-          {users.length !== 0 &&
-            users
-              .filter((user) => user.userName !== userName)
-              .map((user, index) => {
-                const { userName, userId } = user;
-                return (
-                  <button onClick={(e) => handleRoomButton(e, userId)} key={index}>
-                    {userName}
-                  </button>
-                );
-              })}
+          <ul className="list">
+            {users.length !== 0 &&
+              users
+                .filter((user) => user.userName !== userName)
+                .map((user, index) => {
+                  const { userName, userId } = user;
+                  return (
+                    <li key={index}>
+                      <button onClick={(e) => handleRoomButton(e, userId)}>{userName}</button>
+                    </li>
+                  );
+                })}
+          </ul>
         </div>
       </div>
       <div className="chat__room">
+        <div className="chat__room--name">
+          <p className="roomName">{roomName}</p>
+        </div>
         <div ref={chatBox} className="chat__room--messages">
           {messages.map((message, index) => {
             const { type, body, user } = message;
