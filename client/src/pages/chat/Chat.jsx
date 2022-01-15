@@ -10,7 +10,7 @@ let socket;
 function Chat({ userName }) {
   const [room, setRoom] = useState({ name: "Public Chat", id: "123" });
   const [users, setUsers] = useState([]);
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState({ ["123"]: [] });
 
   const chatBox = useRef();
 
@@ -32,23 +32,37 @@ function Chat({ userName }) {
 
     socket.emit("join-public", userName, room);
 
-    socket.on("notification", ({ message }) => {
-      setMessages((prev) => [...prev, { type: "notification", body: message }]);
+    socket.on("notification", ({ message, roomName }) => {
+      // setMessages((prev) => [...prev, { type: "notification", body: message }]);
+      setMessages((prev) => {
+        return { ...prev, [roomName]: [...prev[roomName], { type: "notification", body: message }] };
+      });
     });
 
     socket.on("users", ({ users }) => {
       setUsers(users);
     });
 
-    socket.on("receivemessage", ({ message, userName }) => {
-      setMessages((prev) => [...prev, { type: "receive", body: message, user: userName }]);
+    socket.on("receivemessage", ({ message, userName, roomName }) => {
+      // setMessages((prev) => [...prev, { type: "receive", body: message, user: userName }]);
+      if (!messages[roomName]) {
+        setMessages((prev) => {
+          return { ...prev, [roomName]: [] };
+        });
+      }
+      setMessages((prev) => {
+        return { ...prev, [roomName]: [...prev[roomName], { type: "receive", body: message, user: userName }] };
+      });
     });
   }, []);
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
     const message = e.target.message.value;
-    setMessages((prev) => [...prev, { type: "send", body: message, user: userName }]);
+    // setMessages((prev) => [...prev, { type: "send", body: message, user: userName }]);
+    setMessages((prev) => {
+      return { ...prev, [room.id]: [...prev[room.id], { type: "send", body: message, user: userName }] };
+    });
     socket.emit("sendmessage", { message, roomName: room.id, userName });
     e.target.message.value = "";
   };
@@ -56,6 +70,11 @@ function Chat({ userName }) {
   const handleRoomButton = (e, name, id) => {
     if (room.id !== id) setRoom({ name, id });
     socket.emit("join-room", { roomId: id, userName });
+    if (!messages[id]) {
+      setMessages((prev) => {
+        return { ...prev, [id]: [] };
+      });
+    }
   };
 
   return (
@@ -100,7 +119,7 @@ function Chat({ userName }) {
           <p className="roomName">{room.name}</p>
         </div>
         <div ref={chatBox} className="chat__room--messages">
-          {messages.map((message, index) => {
+          {messages[room.id].map((message, index) => {
             const { type, body, user } = message;
             return <Message key={index} user={user} type={type} body={body} />;
           })}

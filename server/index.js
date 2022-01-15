@@ -18,17 +18,17 @@ io.on("connection", (socket) => {
     // roomName ===  public
     addUser(userName, socket.id, room);
     socket.join(room.id);
-    socket.to(room.id).emit("notification", { message: `user: ${userName} has joined` });
+    socket.to(room.id).emit("notification", { message: `user: ${userName} has joined`, roomName: room.id });
     io.to(room.id).emit("users", { users });
   });
 
   socket.on("sendmessage", ({ message, roomName, userName }) => {
-    socket.to(roomName).emit("receivemessage", { message, userName });
+    socket.to(roomName).emit("receivemessage", { message, userName, roomName });
   });
 
   socket.on("join-room", (roomId, userName) => {
     socket.join(roomId);
-    socket.to(roomId).emit("notification", { message: `${userName} has joined` });
+    socket.to(roomId).emit("notification", { message: `${userName} has joined`, roomName: roomId });
   });
 });
 
